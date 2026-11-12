@@ -1,5 +1,5 @@
 // App-shell service worker: the UI works offline; data lives in IndexedDB and syncs when online.
-// 1794494945361 and ["app.css","app.js","icon-192.png","icon-512.png","icon-maskable-512.png","index.html","manifest.webmanifest","./"] are replaced by the build.
+// 1794497398995 and ["app.css","app.js","icon-192.png","icon-512.png","icon-maskable-512.png","index.html","manifest.webmanifest","./"] are replaced by the build.
 const CACHE = 'gsm-__BUILD_ID__';
 const PRECACHE = __PRECACHE__;
 
