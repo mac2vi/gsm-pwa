@@ -1,7 +1,7 @@
 // App-shell service worker: the UI works offline; data lives in IndexedDB and syncs when online.
 // The build replaces the two placeholder constants below (build id, list of files to precache).
 // Strategy: network first (always revalidated, so a new deploy shows up immediately), cache as the offline fallback.
-const CACHE = 'gsm-1794500610985';
+const CACHE = 'gsm-1794501777193';
 const PRECACHE = ["app.css","app.js","icon-192.png","icon-512.png","icon-maskable-512.png","index.html","manifest.webmanifest","./"];
 
 self.addEventListener('install', (event) => {
