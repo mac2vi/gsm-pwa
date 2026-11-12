@@ -1,10 +1,16 @@
 // App-shell service worker: the UI works offline; data lives in IndexedDB and syncs when online.
-// 1794499001532 and ["app.css","app.js","icon-192.png","icon-512.png","icon-maskable-512.png","index.html","manifest.webmanifest","./"] are replaced by the build.
-const CACHE = 'gsm-__BUILD_ID__';
-const PRECACHE = __PRECACHE__;
+// The build replaces the two placeholder constants below (build id, list of files to precache).
+// Strategy: network first (always revalidated, so a new deploy shows up immediately), cache as the offline fallback.
+const CACHE = 'gsm-1794499182299';
+const PRECACHE = ["app.css","app.js","icon-192.png","icon-512.png","icon-maskable-512.png","index.html","manifest.webmanifest","./"];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE).then((c) => c.addAll(PRECACHE)).then(() => self.skipWaiting()));
+  event.waitUntil(
+    caches
+      .open(CACHE)
+      .then((c) => c.addAll(PRECACHE.map((p) => new Request(p, { cache: 'reload' }))))
+      .then(() => self.skipWaiting()),
+  );
 });
 
 self.addEventListener('activate', (event) => {
@@ -21,9 +27,16 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(req.url);
   if (req.method !== 'GET' || url.origin !== self.location.origin) return; // Google APIs etc. go straight to the network
   event.respondWith(
-    caches.match(req, { ignoreSearch: true }).then((hit) => {
-      if (hit) return hit;
-      return fetch(req).catch(() => (req.mode === 'navigate' ? caches.match('index.html') : Response.error()));
-    }),
+    fetch(req, { cache: 'no-cache' })
+      .then((res) => {
+        if (res.ok) {
+          const copy = res.clone();
+          void caches.open(CACHE).then((c) => c.put(req, copy));
+        }
+        return res;
+      })
+      .catch(() =>
+        caches.match(req, { ignoreSearch: true }).then((hit) => hit ?? (req.mode === 'navigate' ? caches.match('index.html') : Response.error())),
+      ),
   );
 });
